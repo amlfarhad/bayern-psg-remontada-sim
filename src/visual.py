@@ -97,33 +97,33 @@ def make_visual(results_path: Path, output_path: Path) -> None:
         height_ratios=[0.85, 1.2, 1.35, 0.55],
         hspace=0.88,
         wspace=0.50,
-        left=0.075,
-        right=0.965,
+        left=0.20,
+        right=0.985,
         top=0.88,
         bottom=0.10,
     )
 
-    fig.text(0.075, 0.955, "Bayern vs PSG second leg: model output", fontsize=22, fontweight="bold", color=INK)
     fig.text(
-        0.075,
-        0.925,
-        "Scenario-weighted Monte Carlo · 300,000 runs",
-        fontsize=10.5,
-        color=MUTED,
+        0.018,
+        0.955,
+        "Bayern vs PSG Second Leg: Scenario-weighted Monte Carlo Simulation with 300k runs",
+        fontsize=19,
+        fontweight="bold",
+        color=INK,
     )
 
     # Panel A: qualification probability.
     ax0 = fig.add_subplot(gs[0, :])
     style_axis(ax0)
+    ax0_pos = ax0.get_position()
+    ax0.set_position([0.04, ax0_pos.y0, 0.945, ax0_pos.height])
     add_panel_label(ax0, "A", "Qualification probability")
     ax0.set_xlim(0, 1)
     ax0.set_ylim(-0.55, 0.55)
-    ax0.axvline(0.5, color=INK, lw=1.1, alpha=0.75)
     ax0.barh([0.16], [q["bayern"]], height=0.20, color=BAYERN, left=0)
     ax0.barh([-0.16], [q["psg"]], height=0.20, color=PSG, left=0)
     ax0.text(q["bayern"] + 0.012, 0.16, f"Bayern {pct(q['bayern'])}", va="center", ha="left", fontsize=14, fontweight="bold", color=INK)
     ax0.text(q["psg"] + 0.012, -0.16, f"PSG {pct(q['psg'])}", va="center", ha="left", fontsize=14, fontweight="bold", color=INK)
-    ax0.text(0.5, -0.46, "50/50", va="center", ha="center", fontsize=9.5, color=AXIS)
     ax0.set_yticks([])
     ax0.xaxis.set_major_formatter(FuncFormatter(pct_axis))
     ax0.set_xticks([0, 0.25, 0.5, 0.75, 1])
@@ -227,13 +227,13 @@ def make_visual(results_path: Path, output_path: Path) -> None:
         ("Both teams score", pct(projections["both_teams_score"])),
     ]
     footer_y = ax5.get_position().y1 - 0.01
-    fig.add_artist(Line2D([0.02, 0.98], [footer_y, footer_y], transform=fig.transFigure, color=INK, lw=1.15))
+    fig.add_artist(Line2D([0, 1], [footer_y, footer_y], transform=fig.transFigure, color=INK, lw=1.15))
     for i, (label, value) in enumerate(summary):
         x = (i + 0.5) / len(summary)
-        ax5.text(x, 0.64, label.upper(), transform=ax5.transAxes, fontsize=8.5, color=AXIS, fontfamily="DejaVu Sans Mono", ha="center")
-        ax5.text(x, 0.22, value, transform=ax5.transAxes, fontsize=17, color=INK, fontweight="bold", ha="center")
+        fig.text(x, footer_y - 0.035, label.upper(), fontsize=8.5, color=AXIS, fontfamily="DejaVu Sans Mono", ha="center")
+        fig.text(x, footer_y - 0.074, value, fontsize=17, color=INK, fontweight="bold", ha="center")
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output_path, dpi=180, bbox_inches="tight", pad_inches=0.25)
+    fig.savefig(output_path, dpi=180)
     plt.close(fig)
 
 
