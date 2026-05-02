@@ -57,9 +57,9 @@ The simulation should produce:
 
 ## Current Result Visual
 
-The repo includes a code-generated LinkedIn-ready visual. It is generated from `outputs/results.json` and can be reproduced with the commands below.
+The repo includes a code-generated result visual. It is generated from `outputs/results.json` and can be reproduced with the commands below.
 
-![Bayern vs PSG simulation results](outputs/linkedin_results.png)
+![Bayern vs PSG simulation results](outputs/model_results.png)
 
 ## Quick Start
 
@@ -70,7 +70,7 @@ python3 src/simulate.py \
 
 python3 src/visual.py \
   --results outputs/results.json \
-  --output outputs/linkedin_results.png
+  --output outputs/model_results.png
 
 python3 src/bias_audit.py \
   --config configs/bayern_psg.json \
@@ -98,4 +98,4 @@ See [docs/bias_audit.md](docs/bias_audit.md).
 
 ## Status
 
-Documentation, reproducible simulation code, result JSON, and a code-generated LinkedIn visual are included. The next step is to harden the model with refreshed pre-match lineup news and referee data close to kickoff.
+Documentation, reproducible simulation code, result JSON, and a code-generated result visual are included. The next step is to harden the model with refreshed pre-match lineup news and referee data close to kickoff.

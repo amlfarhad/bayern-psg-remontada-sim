@@ -56,9 +56,9 @@ def load_audit(results_path: Path) -> list[tuple[str, float]]:
     audit = json.loads(audit_path.read_text())
     labels = {
         "baseline": "Baseline",
-        "raw_ucl_finishing_ratios": "Let PSG keep UCL finishing heater",
+        "raw_ucl_finishing_ratios": "PSG finishing heater holds",
         "no_comeback_narrative": "Remove Bayern comeback bump",
-        "anti_bayern_stack": "All PSG-friendly assumptions",
+        "anti_bayern_stack": "PSG-friendly stack",
     }
     order = list(labels)
     values = {row["variant"]: row["bayern_qualify"] for row in audit["rows"]}
@@ -94,7 +94,7 @@ def make_visual(results_path: Path, output_path: Path) -> None:
         figure=fig,
         height_ratios=[0.85, 1.2, 1.35, 0.55],
         hspace=0.88,
-        wspace=0.32,
+        wspace=0.50,
         left=0.075,
         right=0.965,
         top=0.88,
@@ -186,7 +186,7 @@ def make_visual(results_path: Path, output_path: Path) -> None:
     add_panel_label(ax4, "E", "Key football scenarios")
     cond = results["conditional_bayern_qualification"]
     scenario_rows = [
-        ("Davies starts / recovery pace holds", cond["davies"]["Davies"]),
+        ("Davies recovery pace holds", cond["davies"]["Davies"]),
         ("No Davies recovery outlet", cond["davies"]["No_Davies"]),
         ("PSG fade late like first leg", cond["fatigue"]["shows_after_60"]),
         ("PSG adrenaline masks fatigue", cond["fatigue"]["masked_until_ET"]),
@@ -202,7 +202,7 @@ def make_visual(results_path: Path, output_path: Path) -> None:
     ax4.set_yticks(range(len(scen_labels)), scen_labels)
     ax4.set_xlim(0.4, 0.6)
     ax4.xaxis.set_major_formatter(FuncFormatter(pct_axis))
-    ax4.set_xticks([0.4, 0.45, 0.5, 0.55, 0.6])
+    ax4.set_xticks([0.4, 0.45, 0.5, 0.55])
     ax4.grid(axis="x", color=GRID, lw=0.8)
 
     # Footer outputs.
@@ -228,7 +228,7 @@ def make_visual(results_path: Path, output_path: Path) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Create a polished analyst-style simulation visual.")
     parser.add_argument("--results", default="outputs/results.json")
-    parser.add_argument("--output", default="outputs/linkedin_results.png")
+    parser.add_argument("--output", default="outputs/model_results.png")
     args = parser.parse_args()
     make_visual(Path(args.results), Path(args.output))
     print(f"Wrote {args.output}")
