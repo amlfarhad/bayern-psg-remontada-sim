@@ -14,12 +14,14 @@ matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
+from matplotlib.lines import Line2D
 from matplotlib.ticker import FuncFormatter
 
 
 BG = "#F7F4EE"
 INK = "#1F1D1B"
 MUTED = "#6F6860"
+AXIS = "#3F3A35"
 GRID = "#DDD5C9"
 BAYERN = "#D90429"
 PSG = "#2451A6"
@@ -41,7 +43,7 @@ def remove_spines(ax) -> None:
 
 def style_axis(ax) -> None:
     ax.set_facecolor(BG)
-    ax.tick_params(colors=MUTED, labelsize=9, length=0)
+    ax.tick_params(colors=AXIS, labelsize=9.5, length=0)
     remove_spines(ax)
 
 
@@ -80,9 +82,9 @@ def make_visual(results_path: Path, output_path: Path) -> None:
             "axes.facecolor": BG,
             "savefig.facecolor": BG,
             "text.color": INK,
-            "axes.labelcolor": MUTED,
-            "xtick.color": MUTED,
-            "ytick.color": MUTED,
+            "axes.labelcolor": AXIS,
+            "xtick.color": AXIS,
+            "ytick.color": AXIS,
             "axes.titleweight": "bold",
         }
     )
@@ -121,7 +123,7 @@ def make_visual(results_path: Path, output_path: Path) -> None:
     ax0.barh([-0.16], [q["psg"]], height=0.20, color=PSG, left=0)
     ax0.text(q["bayern"] + 0.012, 0.16, f"Bayern {pct(q['bayern'])}", va="center", ha="left", fontsize=14, fontweight="bold", color=INK)
     ax0.text(q["psg"] + 0.012, -0.16, f"PSG {pct(q['psg'])}", va="center", ha="left", fontsize=14, fontweight="bold", color=INK)
-    ax0.text(0.5, -0.46, "50/50", va="center", ha="center", fontsize=9, color=MUTED)
+    ax0.text(0.5, -0.46, "50/50", va="center", ha="center", fontsize=9.5, color=AXIS)
     ax0.set_yticks([])
     ax0.xaxis.set_major_formatter(FuncFormatter(pct_axis))
     ax0.set_xticks([0, 0.25, 0.5, 0.75, 1])
@@ -139,6 +141,9 @@ def make_visual(results_path: Path, output_path: Path) -> None:
     for y, value in zip(y_pos, path_values):
         ax1.text(value + 0.012, y, pct(value), va="center", ha="left", fontsize=11, fontweight="bold")
     ax1.set_yticks(y_pos, path_labels)
+    for label in ax1.get_yticklabels():
+        label.set_color(AXIS)
+        label.set_fontweight("medium")
     ax1.set_xlim(0, 0.46)
     ax1.xaxis.set_major_formatter(FuncFormatter(pct_axis))
     ax1.set_xticks([0, 0.1, 0.2, 0.3, 0.4])
@@ -154,8 +159,10 @@ def make_visual(results_path: Path, output_path: Path) -> None:
     ax2.scatter(score_values, range(len(score_labels)), s=110, c=score_colors, zorder=3)
     for i, (label, value) in enumerate(zip(score_labels, score_values)):
         ax2.plot([0.035, value], [i, i], color=GRID, lw=1.0, zorder=1)
-        ax2.text(value + 0.0015, i, pct(value), va="center", ha="left", fontsize=9.5, color=MUTED)
+        ax2.text(value + 0.0015, i, pct(value), va="center", ha="left", fontsize=9.8, color=AXIS)
     ax2.set_yticks(range(len(score_labels)), score_labels)
+    for label in ax2.get_yticklabels():
+        label.set_color(AXIS)
     ax2.set_xlim(0.035, 0.068)
     ax2.xaxis.set_major_formatter(FuncFormatter(pct_axis))
     ax2.set_xticks([0.04, 0.05, 0.06])
@@ -173,8 +180,10 @@ def make_visual(results_path: Path, output_path: Path) -> None:
         ax3.scatter(values, range(len(labels)), s=120, c=colors, zorder=3)
         for i, value in enumerate(values):
             ax3.plot([0.4, value], [i, i], color=GRID, lw=1.0, zorder=1)
-            ax3.text(value + 0.004, i, pct(value), va="center", ha="left", fontsize=9.5)
+            ax3.text(value + 0.004, i, pct(value), va="center", ha="left", fontsize=9.8, color=INK)
         ax3.set_yticks(range(len(labels)), labels)
+        for label in ax3.get_yticklabels():
+            label.set_color(AXIS)
     ax3.set_xlim(0.4, 0.6)
     ax3.xaxis.set_major_formatter(FuncFormatter(pct_axis))
     ax3.set_xticks([0.4, 0.45, 0.5, 0.55, 0.6])
@@ -198,8 +207,10 @@ def make_visual(results_path: Path, output_path: Path) -> None:
     ax4.scatter(scen_values, range(len(scen_labels)), s=120, c=scen_colors, zorder=3)
     for i, value in enumerate(scen_values):
         ax4.plot([0.4, value], [i, i], color=GRID, lw=1.0, zorder=1)
-        ax4.text(value + 0.004, i, pct(value), va="center", ha="left", fontsize=9.5)
+        ax4.text(value + 0.004, i, pct(value), va="center", ha="left", fontsize=9.8, color=INK)
     ax4.set_yticks(range(len(scen_labels)), scen_labels)
+    for label in ax4.get_yticklabels():
+        label.set_color(AXIS)
     ax4.set_xlim(0.4, 0.6)
     ax4.xaxis.set_major_formatter(FuncFormatter(pct_axis))
     ax4.set_xticks([0.4, 0.45, 0.5, 0.55])
@@ -215,11 +226,12 @@ def make_visual(results_path: Path, output_path: Path) -> None:
         ("Average goals", f"{projections['average_goals']:.2f}"),
         ("Both teams score", pct(projections["both_teams_score"])),
     ]
+    footer_y = ax5.get_position().y1 - 0.01
+    fig.add_artist(Line2D([0.02, 0.98], [footer_y, footer_y], transform=fig.transFigure, color=INK, lw=1.15))
     for i, (label, value) in enumerate(summary):
-        x = 0.02 + i * 0.245
-        ax5.text(x, 0.66, label.upper(), transform=ax5.transAxes, fontsize=8.5, color=MUTED, fontfamily="DejaVu Sans Mono")
-        ax5.text(x, 0.22, value, transform=ax5.transAxes, fontsize=17, color=INK, fontweight="bold")
-    ax5.axhline(0.95, color=INK, lw=1.1)
+        x = (i + 0.5) / len(summary)
+        ax5.text(x, 0.64, label.upper(), transform=ax5.transAxes, fontsize=8.5, color=AXIS, fontfamily="DejaVu Sans Mono", ha="center")
+        ax5.text(x, 0.22, value, transform=ax5.transAxes, fontsize=17, color=INK, fontweight="bold", ha="center")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=180, bbox_inches="tight", pad_inches=0.25)
     plt.close(fig)
