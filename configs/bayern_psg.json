@@ -1,0 +1,59 @@
+{
+  "simulation": {
+    "runs": 300000,
+    "seed": 202605021337
+  },
+  "observed_data": {
+    "bayern": {
+      "ucl_goals": 38,
+      "ucl_xg": 33.54,
+      "ucl_goals_against": 14,
+      "ucl_xga": 17.2,
+      "ucl_shots": 230,
+      "ucl_shots_on_target": 99
+    },
+    "psg": {
+      "ucl_goals": 38,
+      "ucl_xg": 28.82,
+      "ucl_goals_against": 17,
+      "ucl_xga": 17.59,
+      "ucl_shots": 270,
+      "ucl_shots_on_target": 102
+    },
+    "first_leg": {
+      "bayern_goals": 4,
+      "psg_goals": 5,
+      "bayern_xg": 2.51,
+      "psg_xg": 1.91
+    }
+  },
+  "scenario_weights": {
+    "psg_shape": {
+      "wze_rb_ruiz_mid": 0.6,
+      "wze_mid_alt_rb": 0.25,
+      "unclear_hybrid": 0.15
+    },
+    "davies_present": 0.6,
+    "psg_fatigue": {
+      "shows_after_60": 0.36,
+      "masked_until_extra_time": 0.4,
+      "not_visible": 0.24
+    },
+    "neuer_state": {
+      "strong": 0.24,
+      "normal": 0.54,
+      "bad_tail": 0.22
+    },
+    "karl_available": 0.55,
+    "bischof_available": 0.35
+  },
+  "model_priors": {
+    "base_bayern_xg": 2.34,
+    "base_psg_xg": 1.78,
+    "bayern_finishing_mean": 1.1,
+    "psg_finishing_mean": 1.13,
+    "bayern_full_press_early_boost": 1.085,
+    "psg_transition_early_boost": 1.065
+  }
+}
+
