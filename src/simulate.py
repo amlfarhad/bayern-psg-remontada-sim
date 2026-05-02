@@ -39,6 +39,10 @@ def pct(counter: Counter[str], key: str, runs: int) -> float:
     return counter[key] / runs
 
 
+def prior(priors: dict[str, Any], key: str, default: float) -> float:
+    return float(priors.get(key, default))
+
+
 def run_simulation(config: dict[str, Any]) -> dict[str, Any]:
     runs = int(config["simulation"]["runs"])
     rng = random.Random(int(config["simulation"]["seed"]))
@@ -148,55 +152,55 @@ def run_simulation(config: dict[str, Any]) -> dict[str, Any]:
             )
 
             if mid < 30:
-                b_rate *= float(priors["bayern_full_press_early_boost"])
-                p_rate *= float(priors["psg_transition_early_boost"])
+                b_rate *= prior(priors, "bayern_full_press_early_boost", 1.085)
+                p_rate *= prior(priors, "psg_transition_early_boost", 1.065)
             elif mid < 60:
-                b_rate *= 1.045
-                p_rate *= 1.035
+                b_rate *= prior(priors, "bayern_mid_press_boost", 1.045)
+                p_rate *= prior(priors, "psg_mid_transition_boost", 1.035)
 
             b_rate *= 1.025 if psg_mid_control < 0.98 else 1.005
             p_rate *= psg_mid_control
 
             if mid >= 55:
                 if aggregate_diff <= -2:
-                    b_rate *= 1.32
-                    p_rate *= 1.10
+                    b_rate *= prior(priors, "bayern_chasing_minus_2_boost", 1.32)
+                    p_rate *= prior(priors, "psg_counter_when_bayern_minus_2", 1.10)
                     tags["Bayern comeback pressure -2"] += 1
                 elif aggregate_diff == -1:
-                    b_rate *= 1.23
-                    p_rate *= 1.065
+                    b_rate *= prior(priors, "bayern_chasing_minus_1_boost", 1.23)
+                    p_rate *= prior(priors, "psg_counter_when_bayern_minus_1", 1.065)
                     tags["Bayern comeback pressure -1"] += 1
                 elif aggregate_diff == 0:
-                    b_rate *= 0.95
-                    p_rate *= 1.03
+                    b_rate *= prior(priors, "bayern_level_attack_multiplier", 0.95)
+                    p_rate *= prior(priors, "psg_counter_when_level", 1.03)
                 else:
-                    b_rate *= 0.86
-                    p_rate *= 1.08
+                    b_rate *= prior(priors, "bayern_leading_attack_multiplier", 0.86)
+                    p_rate *= prior(priors, "psg_counter_when_bayern_lead", 1.08)
 
             if mid >= 65:
                 if fatigue == "shows_after_60":
-                    b_rate *= 1.09
-                    p_rate *= 0.96
+                    b_rate *= prior(priors, "psg_fatigue_bayern_boost", 1.09)
+                    p_rate *= prior(priors, "psg_fatigue_psg_multiplier", 0.96)
                 elif fatigue == "masked_until_ET":
-                    b_rate *= 1.02
+                    b_rate *= prior(priors, "masked_fatigue_bayern_boost", 1.02)
 
             if mid >= 72 and aggregate_diff < 0:
                 if karl_available:
-                    b_rate *= 1.055
+                    b_rate *= prior(priors, "karl_late_boost", 1.055)
                     tags["Karl late direct option active"] += 1
                 if bischof_available:
-                    b_rate *= 1.018
+                    b_rate *= prior(priors, "bischof_late_boost", 1.018)
                     tags["Bischof small energy option active"] += 1
 
-            if rng.random() < 0.055 * mins / 15 and aggregate_diff < 1:
-                p_rate *= 1.24
+            if rng.random() < prior(priors, "psg_transition_burst_probability", 0.055) * mins / 15 and aggregate_diff < 1:
+                p_rate *= prior(priors, "psg_transition_burst_multiplier", 1.24)
                 tags["PSG repeatable transition burst"] += 1
 
             system_event_prob = (
-                0.0105
+                prior(priors, "bayern_system_event_probability", 0.0105)
                 * mins
                 / 15
-                * (1.25 if aggregate_diff < 0 and mid >= 45 else 1.0)
+                * (prior(priors, "bayern_system_event_chasing_multiplier", 1.25) if aggregate_diff < 0 and mid >= 45 else 1.0)
                 * bayern_recovery_risk
                 * stanisic_risk
             )
@@ -209,7 +213,7 @@ def run_simulation(config: dict[str, Any]) -> dict[str, Any]:
                     first = "PSG"
 
             ref = rng.lognormvariate(0, 0.17)
-            if rng.random() < 0.020 * mins / 15 * ref * (1.08 if aggregate_diff < 0 else 1.0):
+            if rng.random() < prior(priors, "bayern_penalty_probability", 0.020) * mins / 15 * ref * (1.08 if aggregate_diff < 0 else 1.0):
                 bayern_shots += 1
                 bayern_sot += 1
                 if rng.random() < 0.80:
@@ -218,7 +222,7 @@ def run_simulation(config: dict[str, Any]) -> dict[str, Any]:
                     if first is None:
                         first = "Bayern"
 
-            if rng.random() < 0.015 * mins / 15 * ref * (1.03 if mid > 55 and aggregate_diff < 0 else 1.0):
+            if rng.random() < prior(priors, "psg_penalty_probability", 0.015) * mins / 15 * ref * (1.03 if mid > 55 and aggregate_diff < 0 else 1.0):
                 psg_shots += 1
                 psg_sot += 1
                 if rng.random() < 0.79:
@@ -259,12 +263,12 @@ def run_simulation(config: dict[str, Any]) -> dict[str, Any]:
             scenario_qual[scenario_key]["PSG"] += 1
         else:
             et_tempo = rng.lognormvariate(0, 0.10)
-            et_b_rate = base_bayern_xg * 30 / 96 * 0.93 * et_tempo * bayern_finishing
+            et_b_rate = base_bayern_xg * 30 / 96 * prior(priors, "et_bayern_stamina_multiplier", 0.93) * et_tempo * bayern_finishing
             et_p_rate = (
                 base_psg_xg
                 * 30
                 / 96
-                * 0.88
+                * prior(priors, "et_psg_fatigue_multiplier", 0.88)
                 * et_tempo
                 * psg_finishing
                 * star_mult
@@ -273,15 +277,15 @@ def run_simulation(config: dict[str, Any]) -> dict[str, Any]:
                 * bayern_recovery_risk
             )
             if fatigue == "shows_after_60":
-                et_b_rate *= 1.10
-                et_p_rate *= 0.94
+                et_b_rate *= prior(priors, "et_fatigue_bayern_boost", 1.10)
+                et_p_rate *= prior(priors, "et_fatigue_psg_multiplier", 0.94)
             elif fatigue == "masked_until_ET":
-                et_b_rate *= 1.06
-                et_p_rate *= 0.96
+                et_b_rate *= prior(priors, "et_masked_bayern_boost", 1.06)
+                et_p_rate *= prior(priors, "et_masked_psg_multiplier", 0.96)
             if karl_available:
-                et_b_rate *= 1.04
+                et_b_rate *= prior(priors, "et_karl_boost", 1.04)
             if bischof_available:
-                et_b_rate *= 1.015
+                et_b_rate *= prior(priors, "et_bischof_boost", 1.015)
 
             et_bayern = poisson_sample(rng, et_b_rate)
             et_psg = poisson_sample(rng, et_p_rate)
@@ -294,7 +298,13 @@ def run_simulation(config: dict[str, Any]) -> dict[str, Any]:
                 paths["PSG in ET"] += 1
                 scenario_qual[scenario_key]["PSG"] += 1
             else:
-                bayern_pens = min(0.56, max(0.50, penalty_neuer + 0.018))
+                bayern_pens = min(
+                    prior(priors, "max_bayern_penalty_shootout_probability", 0.56),
+                    max(
+                        prior(priors, "min_bayern_penalty_shootout_probability", 0.50),
+                        penalty_neuer + prior(priors, "penalty_home_edge", 0.018),
+                    ),
+                )
                 if rng.random() < bayern_pens:
                     qualification["Bayern"] += 1
                     paths["Bayern on pens"] += 1
@@ -388,4 +398,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

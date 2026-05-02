@@ -2,144 +2,210 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
+import random
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 
 WIDTH = 1600
 HEIGHT = 1600
-BG = "#F7F4EF"
-TEXT = "#191919"
-MUTED = "#6E6A63"
-BAYERN = "#DC052D"
-PSG = "#21468B"
-GOLD = "#C8A45D"
-DARK = "#262626"
-GRID = "#D9D3C7"
+
+INK = "#F6F1E8"
+MUTED = "#9D968B"
+SUBTLE = "#5B554E"
+PANEL = "#12100E"
+PANEL_2 = "#181512"
+BAYERN = "#E3062C"
+PSG = "#2D5CA8"
+GOLD = "#D3AE5F"
+LINE = "#332C25"
 
 
-def font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
-    path = "/System/Library/Fonts/Supplemental/Arial Bold.ttf" if bold else "/System/Library/Fonts/Supplemental/Arial.ttf"
-    return ImageFont.truetype(path, size)
+def typeface(size: int, kind: str = "body") -> ImageFont.FreeTypeFont:
+    if kind == "serif":
+        return ImageFont.truetype("/System/Library/Fonts/NewYork.ttf", size)
+    if kind == "mono":
+        return ImageFont.truetype("/System/Library/Fonts/SFNSMono.ttf", size)
+    return ImageFont.truetype("/System/Library/Fonts/Avenir Next.ttc", size)
 
 
-def pct(value: float) -> str:
-    return f"{value * 100:.1f}%"
+def pct(value: float, digits: int = 1) -> str:
+    return f"{value * 100:.{digits}f}%"
 
 
-def bar(draw: ImageDraw.ImageDraw, x: int, y: int, w: int, h: int, value: float, color: str, label: str) -> None:
-    draw.rounded_rectangle((x, y, x + w, y + h), radius=8, fill="#E7E0D3")
-    draw.rounded_rectangle((x, y, x + int(w * value), y + h), radius=8, fill=color)
-    draw.text((x, y - 42), label, fill=MUTED, font=font(28, True))
-    draw.text((x + w + 24, y + h / 2 - 22), pct(value), fill=TEXT, font=font(34, True))
+def hex_to_rgb(value: str) -> tuple[int, int, int]:
+    value = value.lstrip("#")
+    return tuple(int(value[i : i + 2], 16) for i in (0, 2, 4))
 
 
-def small_bar(
-    draw: ImageDraw.ImageDraw,
-    x: int,
-    y: int,
-    w: int,
-    h: int,
-    value: float,
-    max_value: float,
-    color: str,
-    label: str,
-) -> None:
-    draw.rounded_rectangle((x, y, x + w, y + h), radius=6, fill="#E7E0D3")
-    fill_w = int(w * (value / max_value))
-    draw.rounded_rectangle((x, y, x + fill_w, y + h), radius=6, fill=color)
-    draw.text((x, y - 5), label, fill=TEXT, font=font(30, True), anchor="ls")
-    draw.text((x + fill_w + 14, y + h / 2), pct(value), fill=TEXT, font=font(28, True), anchor="lm")
+def blend(a: str, b: str, t: float) -> tuple[int, int, int]:
+    ar, ag, ab = hex_to_rgb(a)
+    br, bg, bb = hex_to_rgb(b)
+    return (
+        int(ar + (br - ar) * t),
+        int(ag + (bg - ag) * t),
+        int(ab + (bb - ab) * t),
+    )
+
+
+def background() -> Image.Image:
+    img = Image.new("RGB", (WIDTH, HEIGHT), "#080706")
+    px = img.load()
+    for y in range(HEIGHT):
+        for x in range(WIDTH):
+            nx = x / WIDTH
+            ny = y / HEIGHT
+            radial_red = math.exp(-((nx - 0.18) ** 2 + (ny - 0.22) ** 2) / 0.035)
+            radial_blue = math.exp(-((nx - 0.86) ** 2 + (ny - 0.18) ** 2) / 0.045)
+            warmth = math.exp(-((nx - 0.50) ** 2 + (ny - 0.90) ** 2) / 0.10)
+            r = 8 + int(34 * radial_red + 10 * warmth)
+            g = 7 + int(6 * radial_red + 8 * radial_blue + 8 * warmth)
+            b = 6 + int(12 * radial_blue + 3 * warmth)
+            px[x, y] = (r, g, b)
+
+    rng = random.Random(42)
+    noise = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
+    npx = noise.load()
+    for _ in range(45000):
+        x = rng.randrange(WIDTH)
+        y = rng.randrange(HEIGHT)
+        alpha = rng.randrange(5, 14)
+        npx[x, y] = (255, 244, 220, alpha)
+    return Image.alpha_composite(img.convert("RGBA"), noise)
+
+
+def panel(draw: ImageDraw.ImageDraw, canvas: Image.Image, box: tuple[int, int, int, int], radius: int = 34) -> None:
+    x1, y1, x2, y2 = box
+    shadow = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+    sd = ImageDraw.Draw(shadow)
+    sd.rounded_rectangle((x1 + 10, y1 + 18, x2 + 10, y2 + 18), radius=radius, fill=(0, 0, 0, 95))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(22))
+    canvas.alpha_composite(shadow)
+    draw.rounded_rectangle(box, radius=radius, fill=PANEL, outline="#2A231C", width=2)
+    draw.rounded_rectangle((x1 + 8, y1 + 8, x2 - 8, y2 - 8), radius=radius - 8, outline="#221D17", width=1)
+
+
+def text_right(draw: ImageDraw.ImageDraw, xy: tuple[int, int], text: str, fill: str, font: ImageFont.FreeTypeFont) -> None:
+    bbox = draw.textbbox((0, 0), text, font=font)
+    draw.text((xy[0] - (bbox[2] - bbox[0]), xy[1]), text, fill=fill, font=font)
+
+
+def progress_split(draw: ImageDraw.ImageDraw, box: tuple[int, int, int, int], left: float) -> None:
+    x1, y1, x2, y2 = box
+    w = x2 - x1
+    h = y2 - y1
+    draw.rounded_rectangle(box, radius=h // 2, fill="#252019")
+    mid = x1 + int(w * left)
+    draw.rounded_rectangle((x1, y1, mid, y2), radius=h // 2, fill=BAYERN)
+    draw.rounded_rectangle((mid - h // 2, y1, x2, y2), radius=h // 2, fill=PSG)
+    draw.line((mid, y1 - 10, mid, y2 + 10), fill=INK, width=2)
 
 
 def make_visual(results_path: Path, output_path: Path) -> None:
     results = json.loads(results_path.read_text())
-    img = Image.new("RGB", (WIDTH, HEIGHT), BG)
+    img = background()
     draw = ImageDraw.Draw(img)
 
-    title = "Bayern vs PSG second-leg simulation"
-    subtitle = "Scenario-weighted Monte Carlo | 300,000 simulated matches | data + analyst priors"
-    draw.text((80, 72), title, fill=TEXT, font=font(52, True))
-    draw.text((80, 138), subtitle, fill=MUTED, font=font(25))
+    # top system marks
+    draw.text((74, 68), "MONTE CARLO / SECOND LEG", fill=GOLD, font=typeface(22, "mono"))
+    text_right(draw, (1526, 68), "BAYERN vs PSG", INK, typeface(22, "mono"))
+    draw.line((74, 116, 1526, 116), fill=LINE, width=2)
+
+    # Hero title
+    draw.text((74, 160), "Remontada,", fill=INK, font=typeface(104, "serif"))
+    draw.text((74, 270), "with receipts.", fill=INK, font=typeface(104, "serif"))
+    draw.text(
+        (82, 400),
+        "Scenario-weighted Monte Carlo built from UCL xG,\nfirst-leg context, lineups, fatigue states\nand tactical priors.",
+        fill=MUTED,
+        font=typeface(27),
+        spacing=8,
+    )
 
     q = results["qualification"]
-    draw.text((80, 235), "Qualification probability", fill=TEXT, font=font(34, True))
-    bar(draw, 80, 330, 520, 58, q["bayern"], BAYERN, "Bayern")
-    bar(draw, 80, 455, 520, 58, q["psg"], PSG, "PSG")
+    bq = q["bayern"]
+    pq = q["psg"]
 
-    draw.text((820, 235), "Most common 90-minute scores", fill=TEXT, font=font(34, True))
+    # Qualification hero panel
+    panel(draw, img, (850, 162, 1526, 535), 38)
+    draw.text((900, 215), "Qualification edge", fill=MUTED, font=typeface(24, "mono"))
+    draw.text((900, 270), pct(bq), fill=INK, font=typeface(76))
+    draw.text((1168, 305), "Bayern", fill=BAYERN, font=typeface(36))
+    draw.text((900, 398), pct(pq), fill=INK, font=typeface(46))
+    draw.text((1082, 425), "PSG", fill=PSG, font=typeface(29))
+    progress_split(draw, (900, 475, 1476, 506), bq)
+
+    # Path panel
+    panel(draw, img, (74, 610, 723, 1030), 34)
+    draw.text((122, 660), "Tie path after 90", fill=INK, font=typeface(38, "serif"))
+    path_items = [
+        ("Bayern qualify", results["score_buckets"]["bayern_by_2_plus"], BAYERN),
+        ("Extra time", results["score_buckets"]["bayern_by_1_extra_time"], GOLD),
+        ("PSG survive", results["score_buckets"]["psg_advance_in_90"], PSG),
+    ]
+    max_path = max(v for _, v, _ in path_items)
+    for idx, (label, value, color) in enumerate(path_items):
+        y = 745 + idx * 90
+        draw.text((122, y), label, fill=MUTED, font=typeface(24))
+        draw.rounded_rectangle((318, y + 2, 600, y + 28), radius=13, fill="#2A241D")
+        draw.rounded_rectangle((318, y + 2, 318 + int(282 * value / max_path), y + 28), radius=13, fill=color)
+        text_right(draw, (658, y - 6), pct(value), INK, typeface(28, "mono"))
+
+    # Scores panel
+    panel(draw, img, (790, 610, 1526, 1030), 34)
+    draw.text((840, 660), "Most common scorelines", fill=INK, font=typeface(38, "serif"))
     scores = results["scorelines"][:5]
     max_score = max(item["probability"] for item in scores)
-    for i, item in enumerate(scores):
-        small_bar(
-            draw,
-            820,
-            330 + i * 95,
-            430,
-            42,
-            item["probability"],
-            max_score,
-            DARK,
-            item["score"],
-        )
+    for idx, item in enumerate(scores):
+        y = 742 + idx * 58
+        draw.text((842, y - 10), item["score"], fill=INK, font=typeface(33, "mono"))
+        draw.rounded_rectangle((946, y, 1334, y + 24), radius=12, fill="#2A241D")
+        draw.rounded_rectangle((946, y, 946 + int(388 * item["probability"] / max_score), y + 24), radius=12, fill=blend(BAYERN, PSG, idx / 5))
+        draw.text((1360, y - 8), pct(item["probability"]), fill=MUTED, font=typeface(25, "mono"))
 
-    draw.text((80, 665), "Tie path after 90 minutes", fill=TEXT, font=font(34, True))
-    buckets = results["score_buckets"]
-    path_items = [
-        ("Bayern in 90", buckets["bayern_by_2_plus"], BAYERN),
-        ("Extra time", buckets["bayern_by_1_extra_time"], GOLD),
-        ("PSG in 90", buckets["psg_advance_in_90"], PSG),
-    ]
-    for i, (label, value, color) in enumerate(path_items):
-        small_bar(draw, 80, 760 + i * 95, 520, 42, value, 0.45, color, label)
-
-    draw.text((820, 835), "Bayern qualification by scenario", fill=TEXT, font=font(34, True))
+    # Scenario strip
+    draw.text((74, 1102), "Assumption pressure points", fill=INK, font=typeface(40, "serif"))
     conditional = results["conditional_bayern_qualification"]
     scenario_items = [
-        ("Davies present", conditional["davies"]["Davies"]),
-        ("No Davies", conditional["davies"]["No_Davies"]),
-        ("Fatigue shows", conditional["fatigue"]["shows_after_60"]),
-        ("Fatigue masked", conditional["fatigue"]["masked_until_ET"]),
+        ("Davies present", conditional["davies"]["Davies"], "recovery pace"),
+        ("No Davies", conditional["davies"]["No_Davies"], "transition risk"),
+        ("Fatigue shows", conditional["fatigue"]["shows_after_60"], "late PSG legs"),
+        ("Fatigue masked", conditional["fatigue"]["masked_until_ET"], "adrenaline branch"),
     ]
-    draw.line((820, 915, 1250, 915), fill=GRID, width=3)
-    draw.text((1035, 882), "50%", fill=MUTED, font=font(22), anchor="mm")
-    for i, (label, value) in enumerate(scenario_items):
-        y = 965 + i * 85
-        draw.text((820, y), label, fill=TEXT, font=font(27, True), anchor="ls")
-        start = 1035
-        delta = int((value - 0.5) / 0.1 * 210)
-        color = BAYERN if value >= 0.5 else PSG
-        if delta >= 0:
-            draw.rounded_rectangle((start, y - 31, start + delta, y - 1), radius=5, fill=color)
-        else:
-            draw.rounded_rectangle((start + delta, y - 31, start, y - 1), radius=5, fill=color)
-        draw.text((1270, y - 16), pct(value), fill=TEXT, font=font(25, True), anchor="lm")
+    for idx, (label, value, sub) in enumerate(scenario_items):
+        x = 74 + idx * 370
+        panel(draw, img, (x, 1170, x + 326, 1380), 28)
+        draw.text((x + 28, 1204), label, fill=INK, font=typeface(28))
+        draw.text((x + 28, 1240), sub.upper(), fill=MUTED, font=typeface(16, "mono"))
+        draw.text((x + 28, 1292), pct(value), fill=BAYERN if value >= 0.5 else PSG, font=typeface(48, "serif"))
+        draw.line((x + 28, 1346, x + 298, 1346), fill=LINE, width=2)
+        marker = x + 28 + int(270 * value)
+        draw.ellipse((marker - 7, 1339, marker + 7, 1353), fill=BAYERN if value >= 0.5 else PSG)
+        draw.text((x + 28, 1358), "0", fill=SUBTLE, font=typeface(13, "mono"))
+        text_right(draw, (x + 298, 1358), "100", SUBTLE, typeface(13, "mono"))
 
+    # Footer metrics
     projections = results["projections"]
-    cards = [
-        ("Modal score", results["metadata"]["modal_score"]),
-        ("Value pick", results["metadata"]["best_value_score"]),
-        ("Average goals", f"{projections['average_goals']:.2f}"),
+    draw.line((74, 1448, 1526, 1448), fill=LINE, width=2)
+    metrics = [
+        ("modal", results["metadata"]["modal_score"]),
+        ("value pick", results["metadata"]["best_value_score"]),
+        ("avg goals", f"{projections['average_goals']:.2f}"),
         ("BTTS", pct(projections["both_teams_score"])),
     ]
-    card_w = 330
-    for i, (label, value) in enumerate(cards):
-        x = 80 + i * 370
-        y = 1260
-        draw.rounded_rectangle((x, y, x + card_w, y + 155), radius=10, outline="#D6CEC0", width=2, fill="#FBF8F1")
-        draw.text((x + 24, y + 28), label.upper(), fill=MUTED, font=font(19, True))
-        draw.text((x + 24, y + 78), value, fill=TEXT, font=font(35, True))
-
-    footer = "Code-generated visualization. Source anchors: UCL xG/shots, first-leg xG, lineup/fatigue scenarios, tactical priors."
-    draw.text((80, 1510), footer, fill=MUTED, font=font(22))
+    for idx, (label, value) in enumerate(metrics):
+        x = 78 + idx * 360
+        draw.text((x, 1480), label.upper(), fill=MUTED, font=typeface(16, "mono"))
+        draw.text((x, 1510), value, fill=INK, font=typeface(31 if idx != 1 else 28))
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    img.save(output_path)
+    img.convert("RGB").save(output_path, quality=96)
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Create a LinkedIn-ready simulation result visual.")
+    parser = argparse.ArgumentParser(description="Create a LinkedIn-ready premium simulation visual.")
     parser.add_argument("--results", default="outputs/results.json")
     parser.add_argument("--output", default="outputs/linkedin_results.png")
     args = parser.parse_args()
@@ -149,4 +215,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

@@ -71,9 +71,21 @@ python3 src/simulate.py \
 python3 src/make_linkedin_visual.py \
   --results outputs/results.json \
   --output outputs/linkedin_results.png
+
+python3 src/bias_audit.py \
+  --config configs/bayern_psg.json \
+  --runs 120000 \
+  --output outputs/bias_audit.json \
+  --markdown docs/bias_audit.md
 ```
 
 The current run uses 300,000 simulations with seed `202605021337`.
+
+## Bias Audit
+
+The repo includes an ablation-based bias audit that tests whether Bayern-favorable analyst priors are driving the result. The headline finding: the model does contain Bayern-leaning priors, but the edge is narrow and assumption-sensitive.
+
+See [docs/bias_audit.md](docs/bias_audit.md).
 
 ## Design Principles
 
