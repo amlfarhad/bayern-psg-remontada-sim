@@ -9,205 +9,239 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 
-WIDTH = 1600
-HEIGHT = 1600
+W = 1600
+H = 2000
+SCALE = 2
 
-INK = "#F6F1E8"
-MUTED = "#9D968B"
-SUBTLE = "#5B554E"
-PANEL = "#12100E"
-PANEL_2 = "#181512"
-BAYERN = "#E3062C"
-PSG = "#2D5CA8"
-GOLD = "#D3AE5F"
-LINE = "#332C25"
+CANVAS = "#0B0A08"
+PAPER = "#F5EFE4"
+MUTED = "#91887C"
+SUBTLE = "#5F574F"
+FAINT = "#2C261F"
+RED = "#E3062C"
+BLUE = "#3267B1"
+GOLD = "#CBAA5E"
 
 
-def typeface(size: int, kind: str = "body") -> ImageFont.FreeTypeFont:
-    if kind == "serif":
+def f(size: int, face: str = "sans") -> ImageFont.FreeTypeFont:
+    size *= SCALE
+    if face == "serif":
         return ImageFont.truetype("/System/Library/Fonts/NewYork.ttf", size)
-    if kind == "mono":
+    if face == "mono":
         return ImageFont.truetype("/System/Library/Fonts/SFNSMono.ttf", size)
     return ImageFont.truetype("/System/Library/Fonts/Avenir Next.ttc", size)
 
 
-def pct(value: float, digits: int = 1) -> str:
-    return f"{value * 100:.{digits}f}%"
+def pct(x: float) -> str:
+    return f"{x * 100:.1f}%"
 
 
-def hex_to_rgb(value: str) -> tuple[int, int, int]:
-    value = value.lstrip("#")
-    return tuple(int(value[i : i + 2], 16) for i in (0, 2, 4))
+def sx(v: float) -> int:
+    return int(v * SCALE)
 
 
-def blend(a: str, b: str, t: float) -> tuple[int, int, int]:
-    ar, ag, ab = hex_to_rgb(a)
-    br, bg, bb = hex_to_rgb(b)
-    return (
-        int(ar + (br - ar) * t),
-        int(ag + (bg - ag) * t),
-        int(ab + (bb - ab) * t),
-    )
+def box(draw: ImageDraw.ImageDraw, xy: tuple[float, float, float, float], outline: str = FAINT, width: int = 1) -> None:
+    draw.rounded_rectangle(tuple(sx(v) for v in xy), radius=sx(2), outline=outline, width=sx(width))
 
 
-def background() -> Image.Image:
-    img = Image.new("RGB", (WIDTH, HEIGHT), "#080706")
+def line(draw: ImageDraw.ImageDraw, xy: tuple[float, float, float, float], fill: str = FAINT, width: float = 1) -> None:
+    draw.line(tuple(sx(v) for v in xy), fill=fill, width=max(1, sx(width)))
+
+
+def text(
+    draw: ImageDraw.ImageDraw,
+    xy: tuple[float, float],
+    value: str,
+    fill: str = PAPER,
+    size: int = 28,
+    face: str = "sans",
+    anchor: str | None = None,
+    spacing: int = 4,
+) -> None:
+    draw.text((sx(xy[0]), sx(xy[1])), value, fill=fill, font=f(size, face), anchor=anchor, spacing=sx(spacing))
+
+
+def right_text(draw: ImageDraw.ImageDraw, x: float, y: float, value: str, fill: str, size: int, face: str = "sans") -> None:
+    text(draw, (x, y), value, fill=fill, size=size, face=face, anchor="ra")
+
+
+def make_bg() -> Image.Image:
+    img = Image.new("RGBA", (W * SCALE, H * SCALE), CANVAS)
+    draw = ImageDraw.Draw(img)
+
+    # Subtle floodlight glow. Built as blurred ellipses, not decorative blobs.
+    glow = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    gd = ImageDraw.Draw(glow)
+    gd.ellipse((sx(-260), sx(-180), sx(760), sx(860)), fill=(120, 0, 8, 82))
+    gd.ellipse((sx(1040), sx(-120), sx(1900), sx(780)), fill=(15, 60, 120, 68))
+    gd.ellipse((sx(280), sx(1230), sx(1440), sx(2360)), fill=(115, 80, 25, 38))
+    img.alpha_composite(glow.filter(ImageFilter.GaussianBlur(sx(90))))
+
+    # Pitch geometry as quiet structure.
+    for y in range(300, 1800, 165):
+        line(draw, (96, y, 1504, y), fill="#17130F", width=1)
+    for x in range(160, 1500, 165):
+        line(draw, (x, 250, x, 1810), fill="#15110E", width=1)
+    line(draw, (800, 255, 800, 1810), fill="#251F19", width=1.2)
+    draw.ellipse((sx(585), sx(785), sx(1015), sx(1215)), outline="#211B15", width=sx(2))
+    draw.arc((sx(628), sx(828), sx(972), sx(1172)), 205, 335, fill="#332A20", width=sx(3))
+    draw.arc((sx(628), sx(828), sx(972), sx(1172)), 25, 155, fill="#263852", width=sx(3))
+
+    rng = random.Random(4)
     px = img.load()
-    for y in range(HEIGHT):
-        for x in range(WIDTH):
-            nx = x / WIDTH
-            ny = y / HEIGHT
-            radial_red = math.exp(-((nx - 0.18) ** 2 + (ny - 0.22) ** 2) / 0.035)
-            radial_blue = math.exp(-((nx - 0.86) ** 2 + (ny - 0.18) ** 2) / 0.045)
-            warmth = math.exp(-((nx - 0.50) ** 2 + (ny - 0.90) ** 2) / 0.10)
-            r = 8 + int(34 * radial_red + 10 * warmth)
-            g = 7 + int(6 * radial_red + 8 * radial_blue + 8 * warmth)
-            b = 6 + int(12 * radial_blue + 3 * warmth)
-            px[x, y] = (r, g, b)
-
-    rng = random.Random(42)
-    noise = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
-    npx = noise.load()
-    for _ in range(45000):
-        x = rng.randrange(WIDTH)
-        y = rng.randrange(HEIGHT)
-        alpha = rng.randrange(5, 14)
-        npx[x, y] = (255, 244, 220, alpha)
-    return Image.alpha_composite(img.convert("RGBA"), noise)
+    for _ in range(35000):
+        x = rng.randrange(W * SCALE)
+        y = rng.randrange(H * SCALE)
+        r, g, b, a = px[x, y]
+        n = rng.randrange(5, 17)
+        px[x, y] = (min(255, r + n), min(255, g + n), min(255, b + n), min(255, a + rng.randrange(6, 13)))
+    return img
 
 
-def panel(draw: ImageDraw.ImageDraw, canvas: Image.Image, box: tuple[int, int, int, int], radius: int = 34) -> None:
-    x1, y1, x2, y2 = box
-    shadow = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
-    sd = ImageDraw.Draw(shadow)
-    sd.rounded_rectangle((x1 + 10, y1 + 18, x2 + 10, y2 + 18), radius=radius, fill=(0, 0, 0, 95))
-    shadow = shadow.filter(ImageFilter.GaussianBlur(22))
-    canvas.alpha_composite(shadow)
-    draw.rounded_rectangle(box, radius=radius, fill=PANEL, outline="#2A231C", width=2)
-    draw.rounded_rectangle((x1 + 8, y1 + 8, x2 - 8, y2 - 8), radius=radius - 8, outline="#221D17", width=1)
-
-
-def text_right(draw: ImageDraw.ImageDraw, xy: tuple[int, int], text: str, fill: str, font: ImageFont.FreeTypeFont) -> None:
-    bbox = draw.textbbox((0, 0), text, font=font)
-    draw.text((xy[0] - (bbox[2] - bbox[0]), xy[1]), text, fill=fill, font=font)
-
-
-def progress_split(draw: ImageDraw.ImageDraw, box: tuple[int, int, int, int], left: float) -> None:
-    x1, y1, x2, y2 = box
-    w = x2 - x1
-    h = y2 - y1
-    draw.rounded_rectangle(box, radius=h // 2, fill="#252019")
-    mid = x1 + int(w * left)
-    draw.rounded_rectangle((x1, y1, mid, y2), radius=h // 2, fill=BAYERN)
-    draw.rounded_rectangle((mid - h // 2, y1, x2, y2), radius=h // 2, fill=PSG)
-    draw.line((mid, y1 - 10, mid, y2 + 10), fill=INK, width=2)
+def dot(draw: ImageDraw.ImageDraw, x: float, y: float, r: float, fill: str, outline: str | None = None) -> None:
+    draw.ellipse((sx(x - r), sx(y - r), sx(x + r), sx(y + r)), fill=fill, outline=outline, width=sx(1) if outline else 1)
 
 
 def make_visual(results_path: Path, output_path: Path) -> None:
     results = json.loads(results_path.read_text())
-    img = background()
+    img = make_bg()
     draw = ImageDraw.Draw(img)
 
-    # top system marks
-    draw.text((74, 68), "MONTE CARLO / SECOND LEG", fill=GOLD, font=typeface(22, "mono"))
-    text_right(draw, (1526, 68), "BAYERN vs PSG", INK, typeface(22, "mono"))
-    draw.line((74, 116, 1526, 116), fill=LINE, width=2)
+    bq = results["qualification"]["bayern"]
+    pq = results["qualification"]["psg"]
+    buckets = results["score_buckets"]
+    projections = results["projections"]
+    scores = results["scorelines"][:6]
+    conditional = results["conditional_bayern_qualification"]
 
-    # Hero title
-    draw.text((74, 160), "Remontada,", fill=INK, font=typeface(104, "serif"))
-    draw.text((74, 270), "with receipts.", fill=INK, font=typeface(104, "serif"))
-    draw.text(
-        (82, 400),
-        "Scenario-weighted Monte Carlo built from UCL xG,\nfirst-leg context, lineups, fatigue states\nand tactical priors.",
+    # Header.
+    text(draw, (96, 82), "SIMULATION DOSSIER", fill=GOLD, size=18, face="mono")
+    text(draw, (96, 122), "BAYERN / PSG · SECOND LEG", fill=MUTED, size=18, face="mono")
+    right_text(draw, 1504, 82, "300,000 MONTE CARLO RUNS", fill=GOLD, size=18, face="mono")
+    right_text(draw, 1504, 122, "SCENARIO-WEIGHTED · GAME-STATE DEPENDENT", fill=MUTED, size=18, face="mono")
+    line(draw, (96, 178, 1504, 178), fill="#322920", width=1)
+
+    # Main headline.
+    text(draw, (96, 252), "Remontada", fill=PAPER, size=132, face="serif")
+    text(draw, (104, 402), "with receipts.", fill=PAPER, size=86, face="serif")
+    text(
+        draw,
+        (104, 532),
+        "A football-biased model, now forced to show its workings:\nUCL xG, first-leg context, fatigue branches, lineup uncertainty,\nand tactical priors audited against PSG-friendly assumptions.",
         fill=MUTED,
-        font=typeface(27),
-        spacing=8,
+        size=25,
+        spacing=10,
     )
 
-    q = results["qualification"]
-    bq = q["bayern"]
-    pq = q["psg"]
+    # Qualification axis, no dashboard card.
+    line(draw, (900, 300, 1504, 300), fill="#3B3026", width=2)
+    mid = 900 + 604 * bq
+    line(draw, (900, 300, mid, 300), fill=RED, width=8)
+    line(draw, (mid, 300, 1504, 300), fill=BLUE, width=8)
+    dot(draw, mid, 300, 11, PAPER)
+    text(draw, (900, 204), "QUALIFICATION EDGE", fill=MUTED, size=20, face="mono")
+    text(draw, (900, 232), pct(bq), fill=PAPER, size=70)
+    text(draw, (1190, 258), "Bayern", fill=RED, size=31)
+    text(draw, (900, 350), pct(pq), fill=PAPER, size=42)
+    text(draw, (1068, 365), "PSG", fill=BLUE, size=25)
+    right_text(draw, 1504, 350, f"Bayern +{(bq - pq) * 100:.1f}pp", fill=GOLD, size=22, face="mono")
 
-    # Qualification hero panel
-    panel(draw, img, (850, 162, 1526, 535), 38)
-    draw.text((900, 215), "Qualification edge", fill=MUTED, font=typeface(24, "mono"))
-    draw.text((900, 270), pct(bq), fill=INK, font=typeface(76))
-    draw.text((1168, 305), "Bayern", fill=BAYERN, font=typeface(36))
-    draw.text((900, 398), pct(pq), fill=INK, font=typeface(46))
-    draw.text((1082, 425), "PSG", fill=PSG, font=typeface(29))
-    progress_split(draw, (900, 475, 1476, 506), bq)
-
-    # Path panel
-    panel(draw, img, (74, 610, 723, 1030), 34)
-    draw.text((122, 660), "Tie path after 90", fill=INK, font=typeface(38, "serif"))
-    path_items = [
-        ("Bayern qualify", results["score_buckets"]["bayern_by_2_plus"], BAYERN),
-        ("Extra time", results["score_buckets"]["bayern_by_1_extra_time"], GOLD),
-        ("PSG survive", results["score_buckets"]["psg_advance_in_90"], PSG),
+    # 90 minute route map.
+    text(draw, (96, 775), "The 90-minute fork", fill=PAPER, size=50, face="serif")
+    line(draw, (96, 858, 1504, 858), fill="#302820", width=1)
+    routes = [
+        ("Bayern\nin 90", buckets["bayern_by_2_plus"], RED),
+        ("Extra\ntime", buckets["bayern_by_1_extra_time"], GOLD),
+        ("PSG\nin 90", buckets["psg_advance_in_90"], BLUE),
     ]
-    max_path = max(v for _, v, _ in path_items)
-    for idx, (label, value, color) in enumerate(path_items):
-        y = 745 + idx * 90
-        draw.text((122, y), label, fill=MUTED, font=typeface(24))
-        draw.rounded_rectangle((318, y + 2, 600, y + 28), radius=13, fill="#2A241D")
-        draw.rounded_rectangle((318, y + 2, 318 + int(282 * value / max_path), y + 28), radius=13, fill=color)
-        text_right(draw, (658, y - 6), pct(value), INK, typeface(28, "mono"))
+    route_x = [260, 800, 1340]
+    for x, (label, value, color) in zip(route_x, routes):
+        dot(draw, x, 858, 12, color)
+        line(draw, (x, 858, x, 1024), fill=color, width=2)
+        text(draw, (x, 1060), pct(value), fill=PAPER, size=58, anchor="ma")
+        text(draw, (x, 1142), label, fill=MUTED, size=24, anchor="ma", spacing=5)
 
-    # Scores panel
-    panel(draw, img, (790, 610, 1526, 1030), 34)
-    draw.text((840, 660), "Most common scorelines", fill=INK, font=typeface(38, "serif"))
-    scores = results["scorelines"][:5]
-    max_score = max(item["probability"] for item in scores)
+    # Scoreline distribution: row plot, not a dashboard bar chart.
+    text(draw, (96, 1270), "Scoreline cloud", fill=PAPER, size=46, face="serif")
+    text(draw, (96, 1326), "Most common regulation outcomes", fill=MUTED, size=21, face="mono")
+    x0, x1 = 250, 760
+    y_axis = 1730
+    line(draw, (x0, y_axis, x1, y_axis), fill="#352C23", width=1)
+    for tick, label in [(0.04, "4%"), (0.05, "5%"), (0.06, "6%")]:
+        tx = x0 + (tick - 0.035) / 0.035 * (x1 - x0)
+        line(draw, (tx, y_axis - 12, tx, y_axis + 12), fill="#352C23", width=1)
+        text(draw, (tx, y_axis + 30), label, fill=SUBTLE, size=15, face="mono", anchor="ma")
     for idx, item in enumerate(scores):
-        y = 742 + idx * 58
-        draw.text((842, y - 10), item["score"], fill=INK, font=typeface(33, "mono"))
-        draw.rounded_rectangle((946, y, 1334, y + 24), radius=12, fill="#2A241D")
-        draw.rounded_rectangle((946, y, 946 + int(388 * item["probability"] / max_score), y + 24), radius=12, fill=blend(BAYERN, PSG, idx / 5))
-        draw.text((1360, y - 8), pct(item["probability"]), fill=MUTED, font=typeface(25, "mono"))
+        prob = item["probability"]
+        x = x0 + (prob - 0.035) / 0.035 * (x1 - x0)
+        y = 1398 + idx * 54
+        line(draw, (x0, y, x1, y), fill="#17120E", width=1)
+        color = RED if idx < 3 else BLUE if item["score"].endswith("-3") else GOLD
+        text(draw, (96, y - 22), item["score"], fill=PAPER, size=28, face="mono")
+        dot(draw, x, y, 14 if idx == 0 else 10, color, outline="#1B1510")
+        text(draw, (x + 26, y - 16), pct(prob), fill=MUTED, size=18, face="mono")
 
-    # Scenario strip
-    draw.text((74, 1102), "Assumption pressure points", fill=INK, font=typeface(40, "serif"))
-    conditional = results["conditional_bayern_qualification"]
-    scenario_items = [
-        ("Davies present", conditional["davies"]["Davies"], "recovery pace"),
-        ("No Davies", conditional["davies"]["No_Davies"], "transition risk"),
-        ("Fatigue shows", conditional["fatigue"]["shows_after_60"], "late PSG legs"),
-        ("Fatigue masked", conditional["fatigue"]["masked_until_ET"], "adrenaline branch"),
-    ]
-    for idx, (label, value, sub) in enumerate(scenario_items):
-        x = 74 + idx * 370
-        panel(draw, img, (x, 1170, x + 326, 1380), 28)
-        draw.text((x + 28, 1204), label, fill=INK, font=typeface(28))
-        draw.text((x + 28, 1240), sub.upper(), fill=MUTED, font=typeface(16, "mono"))
-        draw.text((x + 28, 1292), pct(value), fill=BAYERN if value >= 0.5 else PSG, font=typeface(48, "serif"))
-        draw.line((x + 28, 1346, x + 298, 1346), fill=LINE, width=2)
-        marker = x + 28 + int(270 * value)
-        draw.ellipse((marker - 7, 1339, marker + 7, 1353), fill=BAYERN if value >= 0.5 else PSG)
-        draw.text((x + 28, 1358), "0", fill=SUBTLE, font=typeface(13, "mono"))
-        text_right(draw, (x + 298, 1358), "100", SUBTLE, typeface(13, "mono"))
+    # Assumption sensitivity.
+    text(draw, (900, 1270), "Bias audit snapshot", fill=PAPER, size=46, face="serif")
+    text(draw, (900, 1326), "Bayern qualify under selected ablations", fill=MUTED, size=21, face="mono")
+    audit_path = results_path.parent / "bias_audit.json"
+    audit_values: list[tuple[str, float]] = []
+    if audit_path.exists():
+        audit = json.loads(audit_path.read_text())
+        keep = ["baseline", "raw_ucl_finishing_ratios", "no_comeback_narrative", "anti_bayern_stack"]
+        names = {
+            "baseline": "baseline",
+            "raw_ucl_finishing_ratios": "raw UCL finishing",
+            "no_comeback_narrative": "no comeback prior",
+            "anti_bayern_stack": "PSG-friendly stack",
+        }
+        for row in audit["rows"]:
+            if row["variant"] in keep:
+                audit_values.append((names[row["variant"]], row["bayern_qualify"]))
+    else:
+        audit_values = [
+            ("baseline", bq),
+            ("Davies present", conditional["davies"]["Davies"]),
+            ("No Davies", conditional["davies"]["No_Davies"]),
+            ("fatigue shows", conditional["fatigue"]["shows_after_60"]),
+        ]
+    ax0, ax1 = 900, 1504
+    ay0 = 1730
+    line(draw, (ax0, ay0, ax1, ay0), fill="#352C23", width=1)
+    for value, label in [(0.4, "40"), (0.5, "50"), (0.6, "60")]:
+        tx = ax0 + (value - 0.4) / 0.2 * (ax1 - ax0)
+        line(draw, (tx, ay0 - 18, tx, ay0 + 18), fill="#352C23", width=1)
+        text(draw, (tx, ay0 + 32), label, fill=SUBTLE, size=15, face="mono", anchor="ma")
+    for idx, (label, value) in enumerate(audit_values):
+        y = 1405 + idx * 74
+        x = ax0 + (value - 0.4) / 0.2 * (ax1 - ax0)
+        line(draw, (ax0, y, ax1, y), fill="#19130F", width=1)
+        dot(draw, x, y, 12, RED if value >= 0.5 else BLUE)
+        text(draw, (ax0, y - 32), label.upper(), fill=MUTED, size=15, face="mono")
+        text(draw, (x + 28, y - 18), pct(value), fill=PAPER, size=22, face="mono")
 
-    # Footer metrics
-    projections = results["projections"]
-    draw.line((74, 1448, 1526, 1448), fill=LINE, width=2)
-    metrics = [
+    # Footer metrics.
+    line(draw, (96, 1840, 1504, 1840), fill="#302820", width=1)
+    footer = [
         ("modal", results["metadata"]["modal_score"]),
         ("value pick", results["metadata"]["best_value_score"]),
         ("avg goals", f"{projections['average_goals']:.2f}"),
         ("BTTS", pct(projections["both_teams_score"])),
     ]
-    for idx, (label, value) in enumerate(metrics):
-        x = 78 + idx * 360
-        draw.text((x, 1480), label.upper(), fill=MUTED, font=typeface(16, "mono"))
-        draw.text((x, 1510), value, fill=INK, font=typeface(31 if idx != 1 else 28))
+    for i, (label, value) in enumerate(footer):
+        x = 96 + i * 360
+        text(draw, (x, 1886), label.upper(), fill=MUTED, size=17, face="mono")
+        text(draw, (x, 1930), value, fill=PAPER, size=31)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    img.convert("RGB").save(output_path, quality=96)
+    img = img.resize((W, H), Image.Resampling.LANCZOS).convert("RGB")
+    img.save(output_path, quality=96)
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Create a LinkedIn-ready premium simulation visual.")
+    parser = argparse.ArgumentParser(description="Create a premium LinkedIn-ready simulation poster.")
     parser.add_argument("--results", default="outputs/results.json")
-    parser.add_argument("--output", default="outputs/linkedin_results.png")
+    parser.add_argument("--output", default="outputs/linkedin_results_premium.png")
     args = parser.parse_args()
     make_visual(Path(args.results), Path(args.output))
     print(f"Wrote {args.output}")

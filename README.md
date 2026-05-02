@@ -70,7 +70,7 @@ python3 src/simulate.py \
 
 python3 src/make_linkedin_visual.py \
   --results outputs/results.json \
-  --output outputs/linkedin_results.png
+  --output outputs/linkedin_results_premium.png
 
 python3 src/bias_audit.py \
   --config configs/bayern_psg.json \
