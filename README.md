@@ -68,9 +68,9 @@ python3 src/simulate.py \
   --config configs/bayern_psg.json \
   --output outputs/results.json
 
-python3 src/make_linkedin_visual.py \
+python3 src/visual.py \
   --results outputs/results.json \
-  --output outputs/linkedin_results_premium.png
+  --output outputs/linkedin_results.png
 
 python3 src/bias_audit.py \
   --config configs/bayern_psg.json \
