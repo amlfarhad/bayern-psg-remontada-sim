@@ -26,6 +26,10 @@ GRID = "#DDD5C9"
 BAYERN = "#D90429"
 PSG = "#2451A6"
 GOLD = "#B88A2A"
+PAGE_LEFT = 0.035
+PAGE_RIGHT = 0.965
+PLOT_LEFT = 0.185
+PLOT_RIGHT = 0.955
 
 
 def pct(value: float) -> str:
@@ -97,17 +101,17 @@ def make_visual(results_path: Path, output_path: Path) -> None:
         height_ratios=[0.85, 1.2, 1.35, 0.55],
         hspace=0.88,
         wspace=0.50,
-        left=0.20,
-        right=0.985,
+        left=PLOT_LEFT,
+        right=PLOT_RIGHT,
         top=0.88,
         bottom=0.10,
     )
 
     fig.text(
-        0.018,
+        PAGE_LEFT,
         0.955,
         "Bayern vs PSG Second Leg: Scenario-weighted Monte Carlo Simulation with 300k runs",
-        fontsize=19,
+        fontsize=18,
         fontweight="bold",
         color=INK,
     )
@@ -116,7 +120,7 @@ def make_visual(results_path: Path, output_path: Path) -> None:
     ax0 = fig.add_subplot(gs[0, :])
     style_axis(ax0)
     ax0_pos = ax0.get_position()
-    ax0.set_position([0.04, ax0_pos.y0, 0.945, ax0_pos.height])
+    ax0.set_position([PAGE_LEFT, ax0_pos.y0, PAGE_RIGHT - PAGE_LEFT, ax0_pos.height])
     add_panel_label(ax0, "A", "Qualification probability")
     ax0.set_xlim(0, 1)
     ax0.set_ylim(-0.55, 0.55)
@@ -227,9 +231,9 @@ def make_visual(results_path: Path, output_path: Path) -> None:
         ("Both teams score", pct(projections["both_teams_score"])),
     ]
     footer_y = ax5.get_position().y1 - 0.01
-    fig.add_artist(Line2D([0, 1], [footer_y, footer_y], transform=fig.transFigure, color=INK, lw=1.15))
+    fig.add_artist(Line2D([PAGE_LEFT, PAGE_RIGHT], [footer_y, footer_y], transform=fig.transFigure, color=INK, lw=1.15))
     for i, (label, value) in enumerate(summary):
-        x = (i + 0.5) / len(summary)
+        x = PAGE_LEFT + (i + 0.5) * (PAGE_RIGHT - PAGE_LEFT) / len(summary)
         fig.text(x, footer_y - 0.035, label.upper(), fontsize=8.5, color=AXIS, fontfamily="DejaVu Sans Mono", ha="center")
         fig.text(x, footer_y - 0.074, value, fontsize=17, color=INK, fontweight="bold", ha="center")
     output_path.parent.mkdir(parents=True, exist_ok=True)
