@@ -61,10 +61,10 @@ def load_audit(results_path: Path) -> list[tuple[str, float]]:
         return []
     audit = json.loads(audit_path.read_text())
     labels = {
-        "baseline": "Baseline",
-        "raw_ucl_finishing_ratios": "PSG finishing heater holds",
-        "no_comeback_narrative": "Remove Bayern comeback bump",
-        "anti_bayern_stack": "PSG-friendly stack",
+        "baseline": "Base model",
+        "raw_ucl_finishing_ratios": "Raw UCL finishing rates",
+        "no_comeback_narrative": "No comeback-form bump",
+        "anti_bayern_stack": "PSG-friendly assumptions",
     }
     order = list(labels)
     values = {row["variant"]: row["bayern_qualify"] for row in audit["rows"]}
@@ -110,7 +110,7 @@ def make_visual(results_path: Path, output_path: Path) -> None:
     fig.text(
         PAGE_LEFT,
         0.955,
-        "Bayern vs PSG Second Leg: Scenario-weighted Monte Carlo Simulation with 300k runs",
+        "Bayern vs PSG Second Leg: Scenario-weighted Monte Carlo Simulation",
         fontsize=18,
         fontweight="bold",
         color=INK,
@@ -175,7 +175,7 @@ def make_visual(results_path: Path, output_path: Path) -> None:
     # Panel D: bias audit.
     ax3 = fig.add_subplot(gs[2, 0])
     style_axis(ax3)
-    add_panel_label(ax3, "D", "Bias audit")
+    add_panel_label(ax3, "D", "Bias audit: Bayern qualify %")
     if audit_rows:
         labels = [row[0] for row in audit_rows][::-1]
         values = [row[1] for row in audit_rows][::-1]
@@ -184,19 +184,19 @@ def make_visual(results_path: Path, output_path: Path) -> None:
         ax3.scatter(values, range(len(labels)), s=120, c=colors, zorder=3)
         for i, value in enumerate(values):
             ax3.plot([0.4, value], [i, i], color=GRID, lw=1.0, zorder=1)
-            ax3.text(value + 0.004, i, pct(value), va="center", ha="left", fontsize=9.8, color=INK)
+            ax3.text(value + 0.006, i, f"Bayern {pct(value)}", va="center", ha="left", fontsize=9.8, color=INK)
         ax3.set_yticks(range(len(labels)), labels)
         for label in ax3.get_yticklabels():
             label.set_color(AXIS)
-    ax3.set_xlim(0.4, 0.6)
+    ax3.set_xlim(0.4, 0.59)
     ax3.xaxis.set_major_formatter(FuncFormatter(pct_axis))
-    ax3.set_xticks([0.4, 0.45, 0.5, 0.55, 0.6])
+    ax3.set_xticks([0.4, 0.45, 0.5, 0.55])
     ax3.grid(axis="x", color=GRID, lw=0.8)
 
     # Panel E: scenario sensitivities.
     ax4 = fig.add_subplot(gs[2, 1])
     style_axis(ax4)
-    add_panel_label(ax4, "E", "Key football scenarios")
+    add_panel_label(ax4, "E", "Scenarios: Bayern qualify %")
     cond = results["conditional_bayern_qualification"]
     scenario_rows = [
         ("Davies recovery pace holds", cond["davies"]["Davies"]),
@@ -211,7 +211,7 @@ def make_visual(results_path: Path, output_path: Path) -> None:
     ax4.scatter(scen_values, range(len(scen_labels)), s=120, c=scen_colors, zorder=3)
     for i, value in enumerate(scen_values):
         ax4.plot([0.4, value], [i, i], color=GRID, lw=1.0, zorder=1)
-        ax4.text(value + 0.004, i, pct(value), va="center", ha="left", fontsize=9.8, color=INK)
+        ax4.text(value + 0.006, i, f"Bayern {pct(value)}", va="center", ha="left", fontsize=9.8, color=INK)
     ax4.set_yticks(range(len(scen_labels)), scen_labels)
     for label in ax4.get_yticklabels():
         label.set_color(AXIS)
