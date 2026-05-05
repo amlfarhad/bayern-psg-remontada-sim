@@ -180,7 +180,6 @@ def make_visual(results_path: Path, output_path: Path) -> None:
         labels = [row[0] for row in audit_rows][::-1]
         values = [row[1] for row in audit_rows][::-1]
         colors = [BAYERN if value >= 0.5 else PSG for value in values]
-        ax3.axvline(0.5, color=INK, lw=1.1, alpha=0.75)
         ax3.scatter(values, range(len(labels)), s=120, c=colors, zorder=3)
         for i, value in enumerate(values):
             ax3.plot([0.4, value], [i, i], color=GRID, lw=1.0, zorder=1)
@@ -207,7 +206,6 @@ def make_visual(results_path: Path, output_path: Path) -> None:
     scen_labels = [row[0] for row in scenario_rows][::-1]
     scen_values = [row[1] for row in scenario_rows][::-1]
     scen_colors = [BAYERN if value >= 0.5 else PSG for value in scen_values]
-    ax4.axvline(0.5, color=INK, lw=1.1, alpha=0.75)
     ax4.scatter(scen_values, range(len(scen_labels)), s=120, c=scen_colors, zorder=3)
     for i, value in enumerate(scen_values):
         ax4.plot([0.4, value], [i, i], color=GRID, lw=1.0, zorder=1)
