@@ -19,7 +19,9 @@ Current key anchors:
 - PSG: 38 Champions League goals from 28.82 xG, 270 shots, 102 shots on target.
 - First leg: PSG 5-4 Bayern.
 - First-leg Opta xG: PSG 1.91, Bayern 2.51.
-- Bayern front three Kane, Olise, and Diaz have 100 combined goals this season, according to Opta reporting.
+- UEFA's match preview has PSG on 43 Champions League goals and Bayern on 42 before the second leg.
+- Opta's MD-1 supercomputer has Bayern winning the 90 minutes in 52.7% of simulations but Bayern qualifying in only 42.2%.
+- Bayern front-line production and PSG knockout production remain treated as elite enough that finishing is not regressed all the way to raw xG.
 
 ## 2. Priors And Analyst Inputs
 
@@ -38,6 +40,13 @@ Current analyst priors:
 - Fabian Ruiz may be technically useful but could slow counter-launch speed if off rhythm.
 - Bayern have the extra-time stamina edge.
 - Bayern's bench is weaker than ideal, but Karl and possibly Bischof provide late energy.
+
+MD-1 update:
+
+- UEFA, Opta and PSG reporting converged on Zaïre-Emery at right-back with Fabián Ruiz in midfield, so that scenario is now the dominant PSG shape.
+- UEFA's possible Bayern lineup listed Laimer rather than Davies at left-back, while other previews still had Davies starting. The Davies/recovery-pace scenario was therefore reduced from likely to close-to-even.
+- German reporting from final training indicated Karl, Bischof and Guerreiro were back on the pitch, increasing late-bench availability.
+- The base xG rates were recalibrated toward Opta's public MD-1 simulation because the previous baseline was too Bayern-friendly relative to a credible external benchmark.
 
 ## 3. Feature Engineering
 
@@ -141,4 +150,3 @@ The output should include conditional qualification probabilities for each major
 - Some tactical priors are subjective and should be labelled as such.
 - Player chemistry and in-game coaching changes are hard to quantify.
 - Penalty and red-card events are inherently noisy.
-

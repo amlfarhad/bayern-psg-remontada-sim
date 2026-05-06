@@ -1,154 +1,154 @@
 {
   "runs": 300000,
   "probabilities_90": {
-    "bayern_win": 0.5966533333333334,
-    "draw": 0.16461,
-    "psg_win": 0.23873666666666668
+    "bayern_win": 0.5240066666666666,
+    "draw": 0.17700333333333335,
+    "psg_win": 0.29899
   },
   "qualification": {
-    "bayern": 0.51896,
-    "psg": 0.48104
+    "bayern": 0.4422,
+    "psg": 0.5578
   },
   "paths": {
-    "bayern_in_et": 0.08024666666666666,
-    "psg_in_90": 0.4033466666666667,
-    "bayern_in_90": 0.39657,
-    "psg_in_et": 0.04132333333333333,
-    "psg_on_pens": 0.03637,
-    "bayern_on_pens": 0.04214333333333333
+    "psg_on_pens": 0.036533333333333334,
+    "psg_in_90": 0.4759933333333333,
+    "bayern_in_90": 0.32483666666666666,
+    "psg_in_et": 0.04527333333333333,
+    "bayern_in_et": 0.07405666666666667,
+    "bayern_on_pens": 0.04330666666666667
   },
   "score_buckets": {
-    "bayern_by_2_plus": 0.39657,
-    "bayern_by_1_extra_time": 0.20008333333333334,
-    "psg_advance_in_90": 0.4033466666666667
+    "bayern_by_2_plus": 0.32483666666666666,
+    "bayern_by_1_extra_time": 0.19917,
+    "psg_advance_in_90": 0.4759933333333333
   },
   "scorelines": [
     {
       "score": "3-2",
-      "probability": 0.06427
-    },
-    {
-      "score": "3-1",
-      "probability": 0.05965
+      "probability": 0.06332666666666667
     },
     {
       "score": "2-1",
-      "probability": 0.05944
+      "probability": 0.06199333333333333
     },
     {
       "score": "2-2",
-      "probability": 0.05472333333333333
+      "probability": 0.05909
     },
     {
-      "score": "4-2",
-      "probability": 0.04817
+      "score": "3-1",
+      "probability": 0.055003333333333335
     },
     {
       "score": "3-3",
-      "probability": 0.04340666666666667
-    },
-    {
-      "score": "4-1",
-      "probability": 0.04113666666666667
-    },
-    {
-      "score": "4-3",
-      "probability": 0.03747333333333333
+      "probability": 0.04559
     },
     {
       "score": "2-3",
-      "probability": 0.03655
+      "probability": 0.04311
+    },
+    {
+      "score": "4-2",
+      "probability": 0.04221
     },
     {
       "score": "1-1",
-      "probability": 0.032453333333333334
-    },
-    {
-      "score": "2-0",
-      "probability": 0.030456666666666667
+      "probability": 0.037053333333333334
     },
     {
       "score": "1-2",
-      "probability": 0.030323333333333334
+      "probability": 0.03677333333333333
     },
     {
-      "score": "5-2",
-      "probability": 0.027753333333333335
+      "score": "4-3",
+      "probability": 0.03502
     },
     {
-      "score": "3-0",
-      "probability": 0.02769
+      "score": "4-1",
+      "probability": 0.034793333333333336
     },
     {
-      "score": "5-1",
-      "probability": 0.023936666666666665
-    },
-    {
-      "score": "3-4",
-      "probability": 0.02316
-    },
-    {
-      "score": "5-3",
-      "probability": 0.022856666666666667
+      "score": "2-0",
+      "probability": 0.029416666666666667
     },
     {
       "score": "1-3",
-      "probability": 0.021446666666666666
+      "probability": 0.027696666666666668
     },
     {
-      "score": "4-4",
-      "probability": 0.020406666666666667
+      "score": "3-4",
+      "probability": 0.026253333333333333
     },
     {
       "score": "2-4",
-      "probability": 0.020336666666666666
+      "probability": 0.024746666666666667
+    },
+    {
+      "score": "3-0",
+      "probability": 0.023606666666666668
+    },
+    {
+      "score": "1-0",
+      "probability": 0.021826666666666668
+    },
+    {
+      "score": "5-2",
+      "probability": 0.021693333333333332
+    },
+    {
+      "score": "4-4",
+      "probability": 0.020646666666666667
+    },
+    {
+      "score": "5-3",
+      "probability": 0.01925
     }
   ],
   "projections": {
-    "average_goals": 5.3726666666666665,
+    "average_goals": 5.22376,
     "median_goals": 5.0,
-    "over_4_5": 0.61165,
-    "both_teams_score": 0.8462466666666667,
-    "bayern_shots": 21.470583333333334,
-    "psg_shots": 18.268553333333333,
-    "bayern_sot": 11.381416666666667,
-    "psg_sot": 8.461686666666667
+    "over_4_5": 0.58731,
+    "both_teams_score": 0.8466633333333333,
+    "bayern_shots": 19.554116666666665,
+    "psg_shots": 19.37163,
+    "bayern_sot": 10.285386666666666,
+    "psg_sot": 9.0172
   },
   "first_goal": {
-    "Bayern": 0.5819,
-    "PSG": 0.41313333333333335,
-    "No goal": 0.004966666666666667
+    "PSG": 0.44850666666666666,
+    "Bayern": 0.5453633333333333,
+    "No goal": 0.00613
   },
   "conditional_bayern_qualification": {
     "psg_shape": {
-      "WZE_RB_Ruiz_mid": 0.5212953712953713,
-      "WZE_mid_alt_RB": 0.5123720706517383,
-      "unclear_hybrid": 0.5205674389647352
+      "WZE_RB_Ruiz_mid": 0.44281668884489306,
+      "WZE_mid_alt_RB": 0.430020964360587,
+      "unclear_hybrid": 0.446868046659025
     },
     "davies": {
-      "Davies": 0.5484909479115697,
-      "No_Davies": 0.474756974498968
+      "Davies": 0.48170736220385024,
+      "No_Davies": 0.40982831082351373
     },
     "fatigue": {
-      "shows_after_60": 0.5342071257153406,
-      "masked_until_ET": 0.5132058440038781,
-      "not_visible": 0.5055820928682515
+      "shows_after_60": 0.45804014036130036,
+      "masked_until_ET": 0.4364252279914227,
+      "not_visible": 0.42819666698883013
     },
     "neuer": {
-      "strong": 0.5616904775140363,
-      "normal": 0.5192458661721526,
-      "bad_tail": 0.47186467277309146
+      "strong": 0.4850826267941918,
+      "normal": 0.44338871784746947,
+      "bad_tail": 0.3926799007444169
     }
   },
   "event_tags_per_match": {
-    "Bayern comeback pressure -2": 0.7788466666666667,
-    "Bayern comeback pressure -1": 0.5810533333333333,
-    "Karl late direct option active": 0.4724566666666667,
-    "Bischof small energy option active": 0.3004266666666667,
-    "PSG repeatable transition burst": 0.28393,
-    "Bayern penalty goal": 0.10900333333333333,
-    "PSG penalty goal": 0.07764333333333333,
-    "Bayern system transition concession": 0.07296666666666667
+    "Bayern comeback pressure -2": 0.9403166666666667,
+    "Karl late direct option active": 0.75112,
+    "Bischof small energy option active": 0.651,
+    "Bayern comeback pressure -1": 0.6154566666666667,
+    "PSG repeatable transition burst": 0.29850333333333334,
+    "Bayern penalty goal": 0.10898666666666666,
+    "PSG penalty goal": 0.07683333333333334,
+    "Bayern system transition concession": 0.07600666666666667
   },
   "metadata": {
     "model_type": "scenario-weighted, game-state-dependent Monte Carlo with Poisson goal generation",

@@ -176,20 +176,21 @@ def make_visual(results_path: Path, output_path: Path) -> None:
     ax3 = fig.add_subplot(gs[2, 0])
     style_axis(ax3)
     add_panel_label(ax3, "D", "Bias audit: Bayern qualify %")
+    bias_xmin = 0.34
     if audit_rows:
         labels = [row[0] for row in audit_rows][::-1]
         values = [row[1] for row in audit_rows][::-1]
         colors = [BAYERN if value >= 0.5 else PSG for value in values]
         ax3.scatter(values, range(len(labels)), s=120, c=colors, zorder=3)
         for i, value in enumerate(values):
-            ax3.plot([0.4, value], [i, i], color=GRID, lw=1.0, zorder=1)
+            ax3.plot([bias_xmin, value], [i, i], color=GRID, lw=1.0, zorder=1)
             ax3.text(value + 0.006, i, f"Bayern {pct(value)}", va="center", ha="left", fontsize=9.8, color=INK)
         ax3.set_yticks(range(len(labels)), labels)
         for label in ax3.get_yticklabels():
             label.set_color(AXIS)
-    ax3.set_xlim(0.4, 0.59)
+    ax3.set_xlim(bias_xmin, 0.59)
     ax3.xaxis.set_major_formatter(FuncFormatter(pct_axis))
-    ax3.set_xticks([0.4, 0.45, 0.5, 0.55])
+    ax3.set_xticks([0.35, 0.4, 0.45, 0.5, 0.55])
     ax3.grid(axis="x", color=GRID, lw=0.8)
 
     # Panel E: scenario sensitivities.

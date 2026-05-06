@@ -80,7 +80,82 @@ Used for:
 
 ## Reporting Sources To Refresh
 
-Before final publication, refresh:
+## MD-1 Research Refresh
+
+Refresh completed on May 5, 2026 local time, ahead of the Wednesday 6 May second leg.
+
+### UEFA Team News And Match Preview
+
+URLs:
+
+- https://www.uefa.com/uefachampionsleague/news/02a5-208b14a03cf8-b4d8a8bcc76b-1000--champions-league-semi-final-second-legs-starting-and-possib/
+- https://www.uefa.com/uefachampionsleague/news/02a5-2087ecd92e89-edd633c22f65-1000--bayern-vs-paris-champions-league-preview-where-to-watch-/
+
+Used for:
+
+- Match timing and venue.
+- Latest possible lineups.
+- Confirmed listed absences: Gnabry for Bayern; Hakimi and Chevalier for PSG.
+- No official doubts listed by UEFA.
+- Competition goal context: PSG 43, Bayern 42.
+- Coach/player comments pointing toward both sides maintaining aggressive styles.
+
+### PSG Official MD-1 Sources
+
+URLs:
+
+- https://www.psg.fr/en/content/the-squad-for-fc-bayern-munich-paris-saint-germain-uefa-champions-league-20252026
+- https://www.psg.fr/en/content/luis-enrique-no-player-will-stop-playing-no-supporter-will-stop-singing-press-conferencefc-bayern-munich-paris-saint-germain-uefa-champions-league-2025-2026
+- https://www.psg.fr/en/content/warren-zaire-emery-do-all-we-can-to-win-this-match-and-qualify-for-the-final-again-press-conference-fc-bayern-munich-paris-saint-germain-uefa-champions-league-2025-2026
+
+Used for:
+
+- PSG travelling squad confirmation.
+- Safonov, Zaïre-Emery, Fabián, Vitinha, João Neves, Nuno Mendes and the front three all included.
+- Luis Enrique framing the one-goal lead as insufficient.
+- Zaïre-Emery stating PSG intend to press, win the ball high, and attack rather than low-block.
+
+### Opta Analyst MD-1 Preview
+
+URL: https://theanalyst.com/articles/bayern-munich-vs-psg-predictions-champions-league-semi-final-second-leg-05-2026
+
+Used for:
+
+- External calibration check.
+- Opta supercomputer: Bayern 90-minute win 52.7%, draw 20.1%, PSG 90-minute win 27.2%.
+- Opta supercomputer: PSG qualify 57.8%, Bayern qualify 42.2%.
+- PSG opponent-box-touch concession trend and both teams' knockout scoring context.
+- Player production context for Kvaratskhelia, Doué and Kane.
+
+### German Final-Training Reporting
+
+URLs:
+
+- https://sport.sky.de/fussball/artikel/karl-bischof-und-guerreiro-beim-training-des-fc-bayern-vor-psg/13540391/34130
+- https://web.de/magazine/sport/fussball/champions-league/fc-bayern-psg-live-blog-aufatmen-fc-bayern-42227912
+
+Used for:
+
+- Karl, Bischof and Guerreiro appearing in final training.
+- Gnabry remaining Bayern's main confirmed attacking absence.
+- Hakimi, Chevalier and Ndjantou listed as PSG absences.
+
+### Match Officials
+
+URLs:
+
+- https://bulinews.com/portuguese-referee-appointed-for-bayern-psg-champions-league-semi-final-second-leg
+- https://www.aia-figc.it/news/champions-league-marco-di-bello-designato-come-var-per-la-partita-bayern-monaco-psg-27358/
+
+Used for:
+
+- João Pinheiro referee appointment.
+- Bruno Jesus and Luciano Maia as assistants.
+- Espen Eskås fourth official.
+- Marco Di Bello VAR and Tiago Martins AVAR.
+- No material model adjustment because available referee-card and penalty samples are too small to justify a strong prior shift.
+
+Before kickoff, still refresh:
 
 - Hakimi injury status
 - Chevalier/Safonov expected starter status
@@ -91,4 +166,3 @@ Before final publication, refresh:
 - Bischof availability
 - Confirmed referee and referee card/penalty history
 - Market odds close to kickoff
-
