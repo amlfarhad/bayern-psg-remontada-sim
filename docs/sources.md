@@ -121,11 +121,27 @@ URL: https://theanalyst.com/articles/bayern-munich-vs-psg-predictions-champions-
 
 Used for:
 
-- External calibration check.
+- External comparator only, not a model-fitting target.
 - Opta supercomputer: Bayern 90-minute win 52.7%, draw 20.1%, PSG 90-minute win 27.2%.
 - Opta supercomputer: PSG qualify 57.8%, Bayern qualify 42.2%.
 - PSG opponent-box-touch concession trend and both teams' knockout scoring context.
 - Player production context for Kvaratskhelia, Doué and Kane.
+
+### Updated Availability / Preview Cross-Checks
+
+URLs:
+
+- https://www.sportsmole.co.uk/football/bayern-munich/champions-league/preview/bayern-vs-psg-prediction-team-news-lineups_596938.html
+- https://www.rhsportsanalysis.com/blog/2026/May/bayern-munich-vs-psg-preview-may-2026-champions-league
+- https://www.sportsgambler.com/betting-tips/football/bayern-munich-vs-psg-prediction-lineups-odds-2026-05-06/
+- https://www.oddschecker.com/us/soccer/uefa-champions-league/bayern-munich-v-psg
+
+Used for:
+
+- Cross-checking the "Gnabry only absentee" Bayern availability signal.
+- Cross-checking likely Davies start/availability versus UEFA's Laimer possible XI.
+- Market sanity check: Bayern are strong 90-minute favorites, while tie qualification remains close because Bayern need margin.
+- Over/BTTS market sanity check for the model's high-goals profile.
 
 ### German Final-Training Reporting
 

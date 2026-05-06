@@ -29,11 +29,11 @@
   },
   "scenario_weights": {
     "psg_shape": {
-      "wze_rb_ruiz_mid": 0.82,
+      "wze_rb_ruiz_mid": 0.78,
       "wze_mid_alt_rb": 0.08,
-      "unclear_hybrid": 0.1
+      "unclear_hybrid": 0.14
     },
-    "davies_present": 0.45,
+    "davies_present": 0.82,
     "psg_fatigue": {
       "shows_after_60": 0.36,
       "masked_until_extra_time": 0.4,
@@ -44,12 +44,12 @@
       "normal": 0.54,
       "bad_tail": 0.22
     },
-    "karl_available": 0.75,
-    "bischof_available": 0.65
+    "karl_available": 0.9,
+    "bischof_available": 0.78
   },
   "model_priors": {
-    "base_bayern_xg": 2.12,
-    "base_psg_xg": 1.87,
+    "base_bayern_xg": 2.3,
+    "base_psg_xg": 1.85,
     "bayern_finishing_mean": 1.1,
     "psg_finishing_mean": 1.13,
     "bayern_full_press_early_boost": 1.085,

@@ -20,7 +20,7 @@ Current key anchors:
 - First leg: PSG 5-4 Bayern.
 - First-leg Opta xG: PSG 1.91, Bayern 2.51.
 - UEFA's match preview has PSG on 43 Champions League goals and Bayern on 42 before the second leg.
-- Opta's MD-1 supercomputer has Bayern winning the 90 minutes in 52.7% of simulations but Bayern qualifying in only 42.2%.
+- Opta's MD-1 supercomputer is tracked as an external comparator, not used as a fitting target.
 - Bayern front-line production and PSG knockout production remain treated as elite enough that finishing is not regressed all the way to raw xG.
 
 ## 2. Priors And Analyst Inputs
@@ -39,14 +39,14 @@ Current analyst priors:
 - If Zaire-Emery moves to right-back, PSG may defend that zone well but lose midfield athleticism and dynamism.
 - Fabian Ruiz may be technically useful but could slow counter-launch speed if off rhythm.
 - Bayern have the extra-time stamina edge.
-- Bayern's bench is weaker than ideal, but Karl and possibly Bischof provide late energy.
+- Bayern's bench is no longer as thin as it looked after the first leg because Karl, Bischof and Guerreiro are available or close enough to available for modeling purposes.
 
 MD-1 update:
 
-- UEFA, Opta and PSG reporting converged on Zaïre-Emery at right-back with Fabián Ruiz in midfield, so that scenario is now the dominant PSG shape.
-- UEFA's possible Bayern lineup listed Laimer rather than Davies at left-back, while other previews still had Davies starting. The Davies/recovery-pace scenario was therefore reduced from likely to close-to-even.
+- UEFA and PSG reporting converged on Zaïre-Emery at right-back with Fabián Ruiz in midfield, so that scenario is now the dominant PSG shape.
+- Updated Bayern reporting points to Gnabry as the only absentee. Davies/recovery-pace availability is therefore high, even though UEFA's possible lineup listed Laimer.
 - German reporting from final training indicated Karl, Bischof and Guerreiro were back on the pitch, increasing late-bench availability.
-- The base xG rates were recalibrated toward Opta's public MD-1 simulation because the previous baseline was too Bayern-friendly relative to a credible external benchmark.
+- Opta and market prices are used as sanity checks only. The headline probability comes from this project's own blend of public stats, first-leg evidence, availability, and tactical priors.
 
 ## 3. Feature Engineering
 

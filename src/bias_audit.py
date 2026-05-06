@@ -196,14 +196,14 @@ def write_markdown(path: Path, rows: list[dict[str, Any]], runs: int) -> None:
             "",
             "## Verdict",
             "",
-            f"- The model is **not laundering a Bayern fan take**: after the MD-1 refresh, the baseline gives PSG {1 - baseline:.1%} to qualify.",
+            f"- The model is **not laundering a Bayern fan take**: after the MD-1 refresh, the baseline is only Bayern {baseline:.1%} / PSG {1 - baseline:.1%}.",
             f"- The largest bias-sensitive channel is PSG finishing treatment. Using raw UCL goals/xG finishing ratios moves Bayern from {baseline:.1%} to {raw['bayern_qualify']:.1%}.",
             f"- The Bayern comeback/crowd prior matters but is not the entire model: removing it moves Bayern to {no_comeback['bayern_qualify']:.1%}.",
             f"- The anti-Bayern stack gives Bayern {anti['bayern_qualify']:.1%}, meaning the public headline should avoid sounding like a confident Bayern call.",
             "",
             "## Interpretation",
             "",
-            "The current model still contains Bayern-leaning priors, especially around late-game pressure, extra-time stamina, and home crowd effects. The MD-1 research refresh pulls the headline toward PSG because Zaïre-Emery at right-back with Fabián Ruiz in midfield is now the dominant expected PSG structure, Davies is less certain, and the Opta supercomputer is a credible external benchmark. The honest public wording is therefore: PSG are tie favorites, while Bayern remain a live comeback threat because they are still very capable of winning the 90 minutes.",
+            "The current model still contains Bayern-leaning priors, especially around late-game pressure, extra-time stamina, home crowd effects, and the now-cleaner Bayern availability picture. It also contains PSG-leaning priors around elite finishing, transition bursts, and the possibility that PSG solve the Hakimi absence without losing too much midfield control. The honest public wording is therefore: Bayern have a narrow model edge, but PSG-friendly assumptions can still flip the tie.",
             "",
         ]
     )
